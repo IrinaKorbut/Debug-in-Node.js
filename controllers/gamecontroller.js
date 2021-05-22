@@ -21,19 +21,16 @@ router.get('/all', (req, res) => {
 
 router.get('/:id', (req, res) => {
     Game.findOne({ where: { id: req.params.id, owner_id: req.user.id } })
-        .then(
-            function findSuccess(game) {
-                res.status(200).json({
-                    game: game
-                })
-            },
-
-            function findFail(err) {
-                res.status(500).json({
-                    message: "Data not found."
-                })
-            }
-        )
+        .then(game => {
+            res.status(200).json({
+                game: game
+            })
+        })
+        .catch(err => {
+            res.status(500).json({
+                 message: "Data not found."
+            })
+        })
 })
 
 router.post('/create', (req, res) => {
@@ -45,18 +42,13 @@ router.post('/create', (req, res) => {
         user_rating: req.body.game.user_rating,
         have_played: req.body.game.have_played
     })
-        .then(
-            function createSuccess(game) {
+        .then(game => {
                 res.status(200).json({
                     game: game,
                     message: "Game created."
                 })
-            },
-
-            function createFail(err) {
-                res.status(500).send(err.message)
-            }
-        )
+            })
+        .catch(err => res.status(500).send(err.message))        
 })
 
 router.put('/update/:id', (req, res) => {
@@ -73,21 +65,17 @@ router.put('/update/:id', (req, res) => {
                 owner_id: req.user.id
             }
         })
-        .then(
-            function updateSuccess(game) {
+        .then(game => {
                 res.status(200).json({
                     game: game,
                     message: "Successfully updated."
                 })
-            },
-
-            function updateFail(err) {
-                res.status(500).json({
-                    message: err.message
-                })
-            }
-
-        )
+            })
+        .catch(err => {
+            res.status(500).json({
+                message: err.message
+            })
+        })
 })
 
 router.delete('/remove/:id', (req, res) => {
@@ -97,20 +85,17 @@ router.delete('/remove/:id', (req, res) => {
             owner_id: req.user.id
         }
     })
-    .then(
-        function deleteSuccess(game) {
+    .then(game => {
             res.status(200).json({
                 game: game,
                 message: "Successfully deleted"
             })
-        },
-
-        function deleteFail(err) {
-            res.status(500).json({
-                error: err.message
-            })
-        }
-    )
+        })
+    .catch(err => {
+        res.status(500).json({
+            error: err.message
+        })
+    })
 })
 
 module.exports = router;
