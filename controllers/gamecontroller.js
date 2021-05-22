@@ -19,24 +19,26 @@ router.get('/all', (req, res) => {
         )
 })
 
-router.get('/:id', (req, res) => {
+router.get('/:id', (req, res) => {    
     Game.findOne({ where: { id: req.params.id, owner_id: req.user.id } })
         .then(game => {
-            res.status(200).json({
-                game: game
-            })
+            if (game) {
+                res.status(200).json({
+                    game: game
+                })
+            } else {
+                res.status(404).json({
+                    message: "Data not found."
+                })
+            }            
         })
-        .catch(err => {
-            res.status(500).json({
-                 message: "Data not found."
-            })
-        })
+        .catch(err => res.status(500).send(err.message))
 })
 
 router.post('/create', (req, res) => {
     Game.create({
         title: req.body.game.title,
-        owner_id: req.body.user.id,
+        owner_id: req.user.id,
         studio: req.body.game.studio,
         esrb_rating: req.body.game.esrb_rating,
         user_rating: req.body.game.user_rating,
@@ -63,13 +65,20 @@ router.put('/update/:id', (req, res) => {
             where: {
                 id: req.params.id,
                 owner_id: req.user.id
-            }
+            },
+            returning: true
         })
         .then(game => {
-                res.status(200).json({
-                    game: game,
-                    message: "Successfully updated."
-                })
+                if (game[0] === 0) {
+                    res.status(404).json({
+                        message: "Such game doesn't not exist"
+                    })
+                } else {
+                    res.status(200).json({
+                        game: game[1][0],
+                        message: "Successfully updated."
+                    })
+                }                
             })
         .catch(err => {
             res.status(500).json({
@@ -86,10 +95,15 @@ router.delete('/remove/:id', (req, res) => {
         }
     })
     .then(game => {
-            res.status(200).json({
-                game: game,
-                message: "Successfully deleted"
-            })
+            if (game === 0) {
+                res.status(404).json({
+                    message: "Such game doesn't not exist"
+                })
+            } else {
+                res.status(200).json({
+                    message: "Successfully deleted"
+                })
+            }            
         })
     .catch(err => {
         res.status(500).json({
