@@ -4,6 +4,7 @@ const sequelize = new Sequelize('gamedb', 'postgres', '123456', {
     host: 'localhost',
     dialect: 'postgres',
     port: 5433,
+    logging: false
 });
 
 sequelize.authenticate()
